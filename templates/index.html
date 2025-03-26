@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Manager</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>File Manager</h1>
+        
+        <div class="upload-section">
+            <input type="file" id="fileInput" multiple>
+            <button onclick="uploadFile()">Upload File</button>
+            <div class="progress-container">
+                <div id="progressBar" class="progress-bar"></div>
+                <span id="progressText">0%</span>
+            </div>
+        </div>
+        
+        <div class="file-list">
+            <h2>Uploaded Files</h2>
+            <ul id="fileList">
+                {% for file in files %}
+                <li>
+                    <span>{{ file }}</span>
+                    <div class="file-actions">
+                        <button onclick="downloadFile('{{ file }}')">Download</button>
+                        <button onclick="shareFile('{{ file }}')" class="share-btn">Share</button>
+                        <button onclick="deleteFile('{{ file }}')" class="delete-btn">Delete</button>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const files = fileInput.files;
+            
+            if (files.length === 0) {
+                alert('Please select a file to upload');
+                return;
+            }
+            
+            const formData = new FormData();
+            for (let i = 0; i < files.length; i++) {
+                formData.append('file', files[i]);
+            }
+            
+            const xhr = new XMLHttpRequest();
+            
+            // Progress tracking
+            xhr.upload.onprogress = function(e) {
+                if (e.lengthComputable) {
+                    const percentComplete = (e.loaded / e.total) * 100;
+                    updateProgress(percentComplete);
+                }
+            };
+            
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.status === 'success') {
+                        alert('File uploaded successfully');
+                        window.location.reload();
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                } else {
+                    alert('Error uploading file');
+                }
+                updateProgress(0);
+            };
+            
+            xhr.open('POST', '/upload', true);
+            xhr.send(formData);
+        }
+        
+        function updateProgress(percent) {
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            
+            progressBar.style.width = percent + '%';
+            progressText.textContent = Math.round(percent) + '%';
+        }
+        
+        function downloadFile(filename) {
+            window.location.href = `/download/${filename}`;
+        }
+        
+        function deleteFile(filename) {
+            if (confirm(`Are you sure you want to delete ${filename}?`)) {
+                fetch(`/delete/${filename}`, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        window.location.reload();
+                    } else {
+                        alert('Error deleting file');
+                    }
+                });
+            }
+        }
+        
+        function shareFile(filename) {
+            fetch(`/share/${filename}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    prompt('Share this link:', data.share_url);
+                } else {
+                    alert('Error generating share link');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
