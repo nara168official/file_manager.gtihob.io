@@ -9,7 +9,7 @@ app.config['UPLOAD_FOLDER'] = r'D:\Users\YourUsername\Documents\file_uploads'  #
 # app.config['UPLOAD_FOLDER'] = '/home/yourusername/file_uploads'  # Linux
 # app.config['UPLOAD_FOLDER'] = '/Users/yourusername/file_uploads'  # Mac
 
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 * 1024  # 100GB max file size
+app.config['MAX_CONTENT_LENGTH'] = 10000 * 1024 * 1024 * 1024  # 1000GB max file size
 app.config['ALLOWED_EXTENSIONS'] = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'zip', 'rar', 'doc', 'docx', 'xls', 'mp3', 'mp4'}
 
 # Ensure upload directory exists
