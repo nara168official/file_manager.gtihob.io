@@ -1,0 +1,11 @@
+# Exported from Render on 2025-03-27T04:38:18Z
+services:
+- type: web
+  name: file_manager.gtihob.io
+  runtime: python
+  repo: https://github.com/nara168official/file_manager.gtihob.io
+  plan: free
+  region: oregon
+  buildCommand: pip install -r requirements.txt
+  startCommand: gunicorn app:app
+version: "1"
